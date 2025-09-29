@@ -9,8 +9,8 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private final String SECRET = "mysecretkey"; // in production, store securely
-    private final long EXPIRATION = 1000 * 60 * 60; // 1 hour
+    private final String SECRET = "mysecretkey"; 
+    private final long EXPIRATION = 1000 * 60 * 60;
 
     public String generateToken(String username) {
         return Jwts.builder()
