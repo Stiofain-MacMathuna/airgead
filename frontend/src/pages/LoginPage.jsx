@@ -22,7 +22,7 @@ function LoginPage() {
     try {
       if (isRegister) {
         // Registration route
-        await axios.post("http://localhost:8080/api/auth/register", {
+        await axios.post("/api/auth/register", {
           username,
           password,
         });
@@ -30,7 +30,7 @@ function LoginPage() {
         setIsRegister(false);
       } else {
         // Login route
-        const res = await axios.post("http://localhost:8080/api/auth/login", {
+        const res = await axios.post("/api/auth/login", {
           username,
           password,
         });

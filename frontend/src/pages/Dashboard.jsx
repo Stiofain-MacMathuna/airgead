@@ -21,7 +21,7 @@ export default function Dashboard() {
 
   // Axios instance with JWT token
   const api = axios.create({
-    baseURL: "http://localhost:8080",
+    baseURL: "",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
