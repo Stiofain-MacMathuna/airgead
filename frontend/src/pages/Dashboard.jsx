@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button } from "react-bootstrap";
 
 const api = axios.create({
-  baseURL: "",
+  baseURL: "http://20.199.81.36",
   headers: {
     "Content-Type": "application/json",
   },
