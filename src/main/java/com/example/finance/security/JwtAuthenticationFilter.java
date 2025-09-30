@@ -4,14 +4,18 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
@@ -23,61 +27,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        return path.startsWith("/api/auth/");
-    }
-
-    @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws IOException, ServletException {
+                                    FilterChain filterChain)
+                                    throws ServletException, IOException {
 
-        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+        String path = request.getServletPath();
+
+        if (path.startsWith("/api/auth") || path.startsWith("/h2-console")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
-        System.out.println("Incoming request URI: " + request.getRequestURI());
-        System.out.println("Authorization header: " + authHeader);
 
-        String username = null;
-        String jwt = null;
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
-            try {
-                username = jwtUtil.getUsernameFromToken(jwt);
-                System.out.println("JWT username extracted: " + username);
-            } catch (Exception e) {
-                System.out.println("JWT parsing failed: " + e.getMessage());
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
-                return;
-            }
-        } else {
-            System.out.println("No Bearer token found");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing Authorization header");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
             return;
         }
 
+        String token = authHeader.substring(7);
+        String username = jwtUtil.getUsernameFromToken(token);
+
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            try {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                if (jwtUtil.validateToken(jwt)) {
-                    UsernamePasswordAuthenticationToken token =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(token);
-                    System.out.println("Authentication successful for: " + username);
-                } else {
-                    System.out.println("JWT validation failed for: " + username);
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT validation failed");
-                    return;
-                }
-            } catch (Exception e) {
-                System.out.println("Failed to load user details: " + e.getMessage());
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
-                return;
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            if (jwtUtil.validateToken(token)) {
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 
