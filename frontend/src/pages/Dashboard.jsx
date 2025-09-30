@@ -4,6 +4,21 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button } from "react-bootstrap";
 
+const api = axios.create({
+  baseURL: "",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export default function Dashboard() {
   const [accounts, setAccounts] = useState([]);
   const [newAccountUser, setNewAccountUser] = useState("");
@@ -14,21 +29,7 @@ export default function Dashboard() {
 
   const navigate = useNavigate();
   const username = localStorage.getItem("username");
-  const token = localStorage.getItem("token");
 
-  // Debug: make sure token is present
-  console.log("JWT Token:", token);
-
-  // Axios instance with JWT token
-  const api = axios.create({
-    baseURL: "",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  // Fetch accounts
   const fetchAccounts = async () => {
     try {
       const res = await api.post("/api/accounts/list", { username });
@@ -39,7 +40,6 @@ export default function Dashboard() {
     }
   };
 
-  // Create account
   const createAccount = async () => {
     if (!newAccountUser) return;
     try {
@@ -52,7 +52,6 @@ export default function Dashboard() {
     }
   };
 
-  // View transactions
   const viewTransactions = async (account) => {
     setSelectedAccount(account);
     try {
@@ -64,7 +63,6 @@ export default function Dashboard() {
     }
   };
 
-  // Deposit
   const handleDeposit = async () => {
     if (!selectedAccount || !amount) return;
     try {
@@ -80,7 +78,6 @@ export default function Dashboard() {
     }
   };
 
-  // Withdraw
   const handleWithdraw = async () => {
     if (!selectedAccount || !amount) return;
     try {
@@ -96,7 +93,6 @@ export default function Dashboard() {
     }
   };
 
-  // Logout function
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
@@ -104,6 +100,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     if (!token) {
       handleLogout();
     } else {
@@ -120,7 +117,6 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      {/* Create Account */}
       <div className="mb-3 d-flex">
         <input
           type="text"
@@ -134,7 +130,6 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Accounts Table */}
       <table className="table table-bordered">
         <thead className="table-light">
           <tr>
@@ -163,7 +158,6 @@ export default function Dashboard() {
         </tbody>
       </table>
 
-      {/* Transactions Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
