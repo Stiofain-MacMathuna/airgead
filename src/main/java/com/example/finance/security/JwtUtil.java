@@ -11,10 +11,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtUtil {
 
-    // Generate a secure random key for HS256
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    // Expiration time (e.g., 24 hours)
     private final long expiration = 24 * 60 * 60 * 1000;
 
     public String generateToken(String username) {

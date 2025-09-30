@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import java.util.Arrays;
 
 @Configuration
 public class SecurityConfig {
@@ -28,51 +29,47 @@ public class SecurityConfig {
         this.jwtUtil = jwtUtil;
     }
 
-    // Password encoder for hashing passwords
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // JWT filter bean
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtUtil, userDetailsService);
     }
 
-    // AuthenticationManager needed for login endpoint
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
-    // Global CORS filter for frontend requests
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:5173"); // React frontend
+        config.setAllowedOrigins(Arrays.asList("http://20.199.81.36", "http://localhost:5173"));
         config.addAllowedHeader("*");
-        config.addAllowedMethod("*"); // GET, POST, PUT, DELETE, OPTIONS
+        config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
 
-    // Security filter chain
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .headers(headers -> headers.frameOptions().disable()) // H2 console
+            .headers(headers -> headers.frameOptions().disable()) 
             .cors()
             .and()
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // allow preflight requests
-                .requestMatchers("/h2-console/**").permitAll()          // H2 console
-                .requestMatchers("/api/auth/**").permitAll()           // login/register
-                .requestMatchers("/api/accounts/**").authenticated()  // account routes need JWT
-                .requestMatchers("/api/transactions/**").authenticated() // transactions need JWT
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
+                .requestMatchers("/h2-console/**").permitAll()         
+                .requestMatchers("/api/auth/**").permitAll()          
+                .requestMatchers("/api/accounts/**").authenticated()  
+                .requestMatchers("/api/transactions/**").authenticated()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
