@@ -24,15 +24,17 @@ public class AccountService {
 
     public Account createAccount(String username, String accountName) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
         Account account = new Account();
         account.setUser(user);
         account.setName(accountName);
         account.setBalance(0.0);
 
+        System.out.println("[Service] Creating account with name: " + accountName);
         return accountRepository.save(account);
     }
+
 
     public List<Account> getAccounts(String username) {
         User user = userRepository.findByUsername(username)

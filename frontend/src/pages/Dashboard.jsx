@@ -46,7 +46,7 @@ export default function Dashboard() {
       console.log("Creating account named:", newAccountName);
       await api.post("/api/accounts", { accountName: newAccountName });
       setNewAccountName("");
-      fetchAccounts();
+      fetchAccounts();  
     } catch (err) {
       console.error("Create account error:", err);
     }

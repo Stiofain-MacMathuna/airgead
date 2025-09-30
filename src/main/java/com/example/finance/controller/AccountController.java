@@ -30,11 +30,11 @@ public class AccountController {
         String accountName = payload.get("accountName");
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName(); // Extracted from JWT
+        String username = auth.getName();
 
+        System.out.println("[Controller] Received accountName: " + accountName);
         return accountService.createAccount(username, accountName);
     }
-
 
     @PostMapping("/list")
     public List<Account> getAccounts(@RequestBody AccountRequest request) {
