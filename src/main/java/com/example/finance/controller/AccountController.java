@@ -3,11 +3,16 @@ package com.example.finance.controller;
 import com.example.finance.dto.AccountRequest;
 import com.example.finance.model.Account;
 import com.example.finance.service.AccountService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -21,9 +26,15 @@ public class AccountController {
     }
 
     @PostMapping
-    public Account createAccount(@RequestBody AccountRequest request) {
-        return accountService.createAccount(request.getUsername());
+    public Account createAccount(@RequestBody Map<String, String> payload) {
+        String accountName = payload.get("accountName");
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName(); // Extracted from JWT
+
+        return accountService.createAccount(username, accountName);
     }
+
 
     @PostMapping("/list")
     public List<Account> getAccounts(@RequestBody AccountRequest request) {

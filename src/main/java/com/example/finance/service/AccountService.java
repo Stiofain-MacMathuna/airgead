@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-    import java.util.UUID;
+import java.util.UUID;
 
 @Service
 public class AccountService {
@@ -22,10 +22,15 @@ public class AccountService {
         this.userRepository = userRepository;
     }
 
-    public Account createAccount(String username) {
+    public Account createAccount(String username, String accountName) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Account account = new Account(user, 0.0);
+
+        Account account = new Account();
+        account.setUser(user);
+        account.setName(accountName);
+        account.setBalance(0.0);
+
         return accountRepository.save(account);
     }
 
