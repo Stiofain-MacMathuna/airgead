@@ -24,7 +24,7 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public Account createAccount(@RequestBody Map<String, Object> payload) {
         System.out.println("[DEBUG] Raw payload received: " + payload);
 

@@ -45,7 +45,7 @@ export default function Dashboard() {
     try {
       console.log("Creating account with payload:", { accountName: newAccountName });
       console.log("Sending to /api/accounts:", JSON.stringify({ accountName: newAccountName }));
-      await api.post("/api/accounts", { accountName: newAccountName });
+      await api.post("/api/accounts/create", { accountName: newAccountName });
       setNewAccountName("");
       fetchAccounts();
     } catch (err) {
