@@ -43,10 +43,10 @@ export default function Dashboard() {
   const createAccount = async () => {
     if (!newAccountName) return;
     try {
-      console.log("Creating account named:", newAccountName);
+      console.log("Creating account with payload:", { accountName: newAccountName });
       await api.post("/api/accounts", { accountName: newAccountName });
       setNewAccountName("");
-      fetchAccounts();  
+      fetchAccounts();
     } catch (err) {
       console.error("Create account error:", err);
     }
