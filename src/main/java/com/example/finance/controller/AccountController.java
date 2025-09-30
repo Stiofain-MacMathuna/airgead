@@ -1,6 +1,7 @@
 package com.example.finance.controller;
 
 import com.example.finance.dto.AccountRequest;
+import com.example.finance.dto.AccountCreateRequest;
 import com.example.finance.model.Account;
 import com.example.finance.service.AccountService;
 
@@ -10,9 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -25,9 +24,10 @@ public class AccountController {
         this.accountService = accountService;
     }
 
+    // ✅ Updated to use AccountCreateRequest DTO
     @PostMapping
-    public Account createAccount(@RequestBody Map<String, String> payload) {
-        String accountName = payload.get("accountName");
+    public Account createAccount(@RequestBody AccountCreateRequest request) {
+        String accountName = request.getAccountName();
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
