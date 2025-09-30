@@ -40,10 +40,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
                                     throws ServletException, IOException {
 
-        String path = request.getServletPath();
+        String path = request.getRequestURI(); // More reliable than getServletPath()
+        System.out.println("[JWT Filter] Incoming request URI: " + path);
 
         // Skip JWT validation for public endpoints
-        if (PUBLIC_PATHS.stream().anyMatch(path::startsWith)) {
+        if (PUBLIC_PATHS.stream().anyMatch(path::equals)) {
+            System.out.println("[JWT Filter] Skipping JWT validation for: " + path);
             filterChain.doFilter(request, response);
             return;
         }
@@ -51,22 +53,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("[JWT Filter] Missing or invalid Authorization header");
             filterChain.doFilter(request, response);
             return;
         }
 
         String token = authHeader.substring(7);
         String username = jwtUtil.getUsernameFromToken(token);
+        System.out.println("[JWT Filter] Extracted username from token: " + username);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (jwtUtil.validateToken(token)) {
+                System.out.println("[JWT Filter] Token validated for user: " + username);
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                System.out.println("[JWT Filter] Token validation failed");
             }
         }
 
