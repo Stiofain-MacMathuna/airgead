@@ -1,6 +1,10 @@
 package com.example.finance.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AccountCreateRequest {
+
+    @JsonProperty("accountName")
     private String accountName;
 
     public AccountCreateRequest() {}

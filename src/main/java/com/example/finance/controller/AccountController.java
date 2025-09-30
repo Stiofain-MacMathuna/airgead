@@ -24,7 +24,6 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    // ✅ Updated to use AccountCreateRequest DTO
     @PostMapping
     public Account createAccount(@RequestBody AccountCreateRequest request) {
         String accountName = request.getAccountName();
