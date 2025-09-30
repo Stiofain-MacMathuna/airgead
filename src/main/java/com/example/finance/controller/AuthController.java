@@ -24,14 +24,23 @@ public class AuthController {
 
     @PostMapping("/register")
     public User register(@RequestBody RegisterRequest request) {
+        System.out.println("[REGISTER] Request received for username: " + request.getUsername());
+
         User user = new User(request.getUsername(), request.getPassword());
-        return authService.register(user);
+        User savedUser = authService.register(user);
+
+        System.out.println("[REGISTER] User saved: " + savedUser.getUsername());
+        return savedUser;
     }
 
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody LoginRequest request) {
+        System.out.println("[LOGIN] Attempt for username: " + request.getUsername());
+
         User user = new User(request.getUsername(), request.getPassword());
         String token = authService.login(user);
+
+        System.out.println("[LOGIN] Token generated for user: " + request.getUsername());
 
         Map<String, String> response = new HashMap<>();
         response.put("token", token);
