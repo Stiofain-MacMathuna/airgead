@@ -1,9 +1,8 @@
 package com.example.finance.controller;
 
-import com.example.finance.model.Account;
+import com.example.finance.dto.TransactionRequest;
 import com.example.finance.model.Transaction;
-import com.example.finance.repository.AccountRepository;
-import com.example.finance.repository.TransactionRepository;
+import com.example.finance.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,36 +13,25 @@ import java.util.UUID;
 @RequestMapping("/api/transactions")
 public class TransactionController {
 
-    @Autowired
-    private TransactionRepository transactionRepository;
+    private final TransactionService transactionService;
 
     @Autowired
-    private AccountRepository accountRepository;
+    public TransactionController(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
 
     @PostMapping("/deposit")
-    public Transaction deposit(@RequestParam UUID accountId, @RequestParam double amount) {
-        Account account = accountRepository.findById(accountId).orElseThrow(() -> new RuntimeException("Account not found"));
-        account.setBalance(account.getBalance() + amount);
-        accountRepository.save(account);
-
-        Transaction txn = new Transaction(account, amount, "DEPOSIT");
-        return transactionRepository.save(txn);
+    public Transaction deposit(@RequestBody TransactionRequest request) {
+        return transactionService.deposit(request.getAccountId(), request.getAmount());
     }
 
     @PostMapping("/withdraw")
-    public Transaction withdraw(@RequestParam UUID accountId, @RequestParam double amount) {
-        Account account = accountRepository.findById(accountId).orElseThrow(() -> new RuntimeException("Account not found"));
-        if (account.getBalance() < amount) throw new RuntimeException("Insufficient funds");
-        account.setBalance(account.getBalance() - amount);
-        accountRepository.save(account);
-
-        Transaction txn = new Transaction(account, amount, "WITHDRAW");
-        return transactionRepository.save(txn);
+    public Transaction withdraw(@RequestBody TransactionRequest request) {
+        return transactionService.withdraw(request.getAccountId(), request.getAmount());
     }
 
     @GetMapping("/{accountId}")
     public List<Transaction> getTransactions(@PathVariable UUID accountId) {
-        Account account = accountRepository.findById(accountId).orElseThrow(() -> new RuntimeException("Account not found"));
-        return transactionRepository.findByAccount(account);
+        return transactionService.getTransactions(accountId);
     }
 }

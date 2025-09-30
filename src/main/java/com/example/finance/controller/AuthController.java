@@ -1,39 +1,40 @@
 package com.example.finance.controller;
 
+import com.example.finance.dto.LoginRequest;
+import com.example.finance.dto.RegisterRequest;
 import com.example.finance.model.User;
-import com.example.finance.repository.UserRepository;
-import com.example.finance.security.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import com.example.finance.service.AuthService;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final AuthService authService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtUtil jwtUtil;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+    public User register(@RequestBody RegisterRequest request) {
+        User user = new User(request.getUsername(), request.getPassword());
+        return authService.register(user);
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody User user) {
-        Optional<User> existing = userRepository.findByUsername(user.getUsername());
-        if (existing.isPresent() && passwordEncoder.matches(user.getPassword(), existing.get().getPassword())) {
-            return jwtUtil.generateToken(existing.get().getUsername());
-        }
-        throw new RuntimeException("Invalid credentials");
+    public Map<String, String> login(@RequestBody LoginRequest request) {
+        User user = new User(request.getUsername(), request.getPassword());
+        String token = authService.login(user);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        return response;
     }
 }

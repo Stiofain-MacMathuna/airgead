@@ -14,7 +14,7 @@ public class Transaction {
     private Account account;
 
     private double amount;
-    private String type; // DEPOSIT or WITHDRAW
+    private String type;
 
     public Transaction() {}
 

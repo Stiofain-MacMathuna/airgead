@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
+@Table(name = "APP_USER")
 public class User {
 
     @Id
@@ -15,6 +16,13 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    public User() {} 
+
+    public User(String username, String password) { 
+        this.username = username;
+        this.password = password;
+    }
 
     // getters and setters
     public UUID getId() { return id; }
