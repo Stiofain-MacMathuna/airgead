@@ -33,4 +33,4 @@ build/
 .vscode/
 
 ### React ###
-node_modules
+node_modules/
