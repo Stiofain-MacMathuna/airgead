@@ -21,7 +21,7 @@ api.interceptors.request.use((config) => {
 
 export default function Dashboard() {
   const [accounts, setAccounts] = useState([]);
-  const [newAccountUser, setNewAccountUser] = useState("");
+  const [newAccountName, setNewAccountName] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [transactions, setTransactions] = useState([]);
@@ -41,11 +41,11 @@ export default function Dashboard() {
   };
 
   const createAccount = async () => {
-    if (!newAccountUser) return;
+    if (!newAccountName) return;
     try {
-      console.log("Creating account for:", newAccountUser);
-      await api.post("/api/accounts", { username: newAccountUser });
-      setNewAccountUser("");
+      console.log("Creating account named:", newAccountName);
+      await api.post("/api/accounts", { accountName: newAccountName });
+      setNewAccountName("");
       fetchAccounts();
     } catch (err) {
       console.error("Create account error:", err);
@@ -121,9 +121,9 @@ export default function Dashboard() {
         <input
           type="text"
           className="form-control me-2"
-          placeholder="New account username"
-          value={newAccountUser}
-          onChange={(e) => setNewAccountUser(e.target.value)}
+          placeholder="New account name"
+          value={newAccountName}
+          onChange={(e) => setNewAccountName(e.target.value)}
         />
         <button className="btn btn-success" onClick={createAccount}>
           Create Account
