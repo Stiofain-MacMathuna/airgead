@@ -43,8 +43,6 @@ export default function Dashboard() {
   const createAccount = async () => {
     if (!newAccountName) return;
     try {
-      console.log("Creating account with payload:", { accountName: newAccountName });
-      console.log("Sending to /api/accounts:", JSON.stringify({ accountName: newAccountName }));
       await api.post("/api/accounts/create", { accountName: newAccountName });
       setNewAccountName("");
       fetchAccounts();
@@ -135,6 +133,7 @@ export default function Dashboard() {
         <thead className="table-light">
           <tr>
             <th>ID</th>
+            <th>Name</th>
             <th>User</th>
             <th>Balance</th>
             <th>Actions</th>
@@ -144,6 +143,7 @@ export default function Dashboard() {
           {accounts.map((acc) => (
             <tr key={acc.id}>
               <td>{acc.id}</td>
+              <td>{acc.name}</td>
               <td>{acc.user?.username || acc.username}</td>
               <td>{acc.balance}</td>
               <td>
@@ -168,11 +168,16 @@ export default function Dashboard() {
         <Modal.Body>
           <div className="mb-3 d-flex">
             <input
-              type="number"
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*"
               className="form-control me-2"
               placeholder="Amount"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (/^\d*\.?\d*$/.test(val)) setAmount(val);
+              }}
             />
             <button className="btn btn-success me-2" onClick={handleDeposit}>
               Deposit
