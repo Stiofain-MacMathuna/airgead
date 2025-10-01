@@ -198,8 +198,22 @@ export default function Dashboard() {
     }
   }, [handleLogout, fetchAccounts]);
 
+  // Function to render the technical explanation with JSX formatting
+  const renderTechnicalExplanation = () => {
+    // We replace the Markdown '**' with <strong> tags manually
+    const parts = TECHNICAL_EXPLANATION.split('**');
+    
+    return parts.map((part, index) => {
+      // Every odd index (1, 3, 5, etc.) is the text that should be bold
+      if (index % 2 === 1) {
+        return <strong key={index}>{part}</strong>;
+      }
+      return part;
+    });
+  };
+
   return (
-    <> {/* React Fragment starts here to wrap both main div and footer */}
+    <> 
       <div className="min-h-screen bg-teal-50 p-4 sm:p-8">
         
         <div className="bg-white p-6 rounded-xl shadow-lg mb-6 border-t-4 border-teal-600">
@@ -218,7 +232,7 @@ export default function Dashboard() {
           <div className="mt-4 pt-4 border-t border-gray-100">
               <h3 className="text-lg font-semibold text-teal-700 mb-2">Portfolio Demo Details:</h3>
               <p className="text-sm text-gray-600 leading-relaxed">
-                  {TECHNICAL_EXPLANATION}
+                  {renderTechnicalExplanation()}
               </p>
           </div>
         </div>
@@ -288,7 +302,7 @@ export default function Dashboard() {
         />
       </div>
       
-      <footer className="mt-10 text-center text-xs text-gray-50 pb-4">
+      <footer className="mt-10 text-center text-xs text-gray-600 pb-4">
         <p>
           <a
             href="https://github.com/Stiofain-MacMathuna"
@@ -309,6 +323,6 @@ export default function Dashboard() {
           </a>
         </p>
       </footer>
-    </> // React Fragment ends here
+    </>
   );
 }
