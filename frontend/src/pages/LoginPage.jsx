@@ -57,18 +57,16 @@ const LoginPage = () => {
       <div className="p-8 w-full max-w-sm bg-white rounded-xl shadow-2xl transition duration-300">
         
         <div className="text-center mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-teal-600 mx-auto mb-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10v6a2 2 0 002 2v-4a2 2 0 00-2-2H4zm12 8V6h2a2 2 0 012 2v4a2 2 0 01-2 2h-2z" clipRule="evenodd" />
-          </svg>
           <h1 className="text-3xl font-extrabold text-gray-800">
             {isRegister ? "Create Account" : "Secure Banking App"}
           </h1>
           <p className="text-sm text-gray-500 mt-1 h-8">
             {isRegister 
-                ? "Deposit and withdrawal demo." 
-                : "A portfolio demo showcasing Spring Boot, JWT, and Azure deployment."
+              ? "Simulated deposit and withdrawal features — showcasing backend integration and secure user flows."
+              : "A secure banking demo built with Spring Boot, JWT authentication, and Azure cloud deployment."
             }
           </p>
+          <p className="text-xs text-gray-400 mt-2 italic">Demo only — not for production use.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -152,6 +150,28 @@ const LoginPage = () => {
               ? "Already have an account? Log In"
               : "No account? Register here"}
           </button>
+        </div>
+
+        <div className="text-center mt-6 text-xs text-gray-500">
+          <p>
+            <a
+              href="https://github.com/Stiofain-MacMathuna"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-teal-600 underline"
+            >
+              GitHub
+            </a>{" "}
+            |{" "}
+            <a
+              href="https://www.linkedin.com/in/stephen-m-15b85a113/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-teal-600 underline"
+            >
+              LinkedIn
+            </a>
+          </p>
         </div>
 
       </div>
