@@ -34,3 +34,5 @@ build/
 
 ### React ###
 node_modules/
+dist/
+*.log
