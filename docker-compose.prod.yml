@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: airgead-backend
+    env_file:
+      - .env.prod
+    ports:
+      - "8080:8080"
+    networks:
+      - airgead-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: airgead-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - airgead-net
+
+networks:
+  airgead-net:
+    driver: bridge

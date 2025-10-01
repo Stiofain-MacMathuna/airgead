@@ -1,11 +1,15 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import Dashboard from './pages/Dashboard';
+
 function App() {
   return (
-    <div className="bg-teal-50 min-h-screen flex items-center justify-center">
-      <div className="card">
-        <h1>Tailwind is working!</h1>
-        <p>This is a red card with bold text.</p>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </Router>
   );
 }
 

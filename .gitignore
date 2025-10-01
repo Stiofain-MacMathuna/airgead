@@ -36,3 +36,6 @@ build/
 node_modules/
 dist/
 *.log
+
+### Env Files ###
+.env.prod
