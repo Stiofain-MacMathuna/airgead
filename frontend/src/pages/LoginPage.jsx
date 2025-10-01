@@ -57,24 +57,10 @@ const LoginPage = () => {
       <div className="p-8 w-full max-w-sm bg-white rounded-xl shadow-2xl transition duration-300">
         
         <div className="text-center mb-6">
-          <div className="relative group inline-block">
-            <div className="flex items-center justify-center gap-1 cursor-help">
-              <h2 className="text-xl font-bold text-teal-600 tracking-wide uppercase mb-2">
-                Airgead
-              </h2>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-teal-500 mb-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M18 10A8 8 0 11-6 10a8 8 0 0116 0zm-8-4a1 1 0 100 2 1 1 0 000-2zm1 8a1 1 0 01-2 0v-4a1 1 0 012 0v4z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
+          <div className="relative group inline-block cursor-help">
+            <h2 className="text-xl font-bold text-teal-600 tracking-wide uppercase mb-2">
+              Airgead
+            </h2>
             <div className="absolute left-1/2 transform -translate-x-1/2 mt-1 w-max px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 z-10">
               “Airgead” means “money” in Irish
             </div>

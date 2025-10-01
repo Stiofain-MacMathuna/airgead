@@ -198,13 +198,10 @@ export default function Dashboard() {
     }
   }, [handleLogout, fetchAccounts]);
 
-  // Function to render the technical explanation with JSX formatting
   const renderTechnicalExplanation = () => {
-    // We replace the Markdown '**' with <strong> tags manually
     const parts = TECHNICAL_EXPLANATION.split('**');
     
     return parts.map((part, index) => {
-      // Every odd index (1, 3, 5, etc.) is the text that should be bold
       if (index % 2 === 1) {
         return <strong key={index}>{part}</strong>;
       }
@@ -213,8 +210,9 @@ export default function Dashboard() {
   };
 
   return (
-    <> 
-      <div className="min-h-screen bg-teal-50 p-4 sm:p-8">
+    <div className="flex flex-col min-h-screen">
+      
+      <div className="bg-teal-50 p-4 sm:p-8 flex-grow">
         
         <div className="bg-white p-6 rounded-xl shadow-lg mb-6 border-t-4 border-teal-600">
           <div className="flex justify-between items-start flex-col sm:flex-row sm:items-center">
@@ -302,7 +300,7 @@ export default function Dashboard() {
         />
       </div>
       
-      <footer className="mt-10 text-center text-xs text-gray-600 pb-4">
+      <footer className="mt-auto text-center text-xs text-gray-600 py-4 bg-white border-t border-gray-200">
         <p>
           <a
             href="https://github.com/Stiofain-MacMathuna"
@@ -323,6 +321,6 @@ export default function Dashboard() {
           </a>
         </p>
       </footer>
-    </>
+    </div>
   );
 }
