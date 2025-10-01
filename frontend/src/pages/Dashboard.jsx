@@ -1,16 +1,21 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom"; 
-import axios from "axios"; 
+import { useNavigate } from "react-router-dom"; // Restored live import
+import axios from "axios"; // Restored live import
+import { LogOut } from "lucide-react"; // <-- ADDED: Import the LogOut icon
 
 const TECHNICAL_EXPLANATION = "A **full-stack financial portfolio management application** demonstrating proficiency in enterprise-grade development. The robust backend is engineered with **Java and the Spring Boot framework**, exposing secure RESTful APIs. Security is prioritized through the implementation of **JSON Web Token (JWT) authentication** for stateless user management and secure communication via **HTTPS**. The modern frontend is built with **React and Vite**. The entire application utilizes a modern DevOps workflow, being **Dockerized** and deployed on a **Microsoft Azure Virtual Machine** leveraging a scalable **Azure PostgreSQL database** for persistence.";
+// Detailed technical explanation for the portfolio reviewer
+const TECHNICAL_EXPLANATION = "A portfolio finance app built using Java's Spring Boot framework, React and Vite frontend. This portfolio piece implements JWT authentication and HTTPS for security. Finally, the app is dockerized and deployed on Microsoft Azure VM and using a Microsoft Azure PostgreSQL database.";
 
+// Configuration for the external Spring Boot API
 const api = axios.create({
-  baseURL: "http://20.199.81.36", 
+  baseURL: "http://20.199.81.36", // Your actual VM endpoint
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+// Axios Interceptor for JWT Authorization
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -19,6 +24,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Custom Modal Component styled with Tailwind
 const TransactionModal = ({ show, onClose, account, transactions, amount, setAmount, handleDeposit, handleWithdraw }) => {
   if (!show) return null;
 
@@ -26,6 +32,7 @@ const TransactionModal = ({ show, onClose, account, transactions, amount, setAmo
     <div className="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center p-4 transition-opacity duration-300">
       <div className="bg-white w-full max-w-3xl rounded-xl shadow-2xl overflow-hidden transform transition-transform duration-300 scale-100">
         
+        {/* Modal Header */}
         <div className="flex justify-between items-center p-5 border-b border-gray-200 bg-teal-50">
           <h3 className="text-xl font-bold text-gray-800">
             Transactions for Account: {account?.name || 'N/A'}
@@ -37,6 +44,7 @@ const TransactionModal = ({ show, onClose, account, transactions, amount, setAmo
           </button>
         </div>
 
+        {/* Modal Body */}
         <div className="p-6">
           <div className="flex flex-col sm:flex-row mb-4 space-y-3 sm:space-y-0 sm:space-x-3">
             <input
@@ -97,6 +105,7 @@ const TransactionModal = ({ show, onClose, account, transactions, amount, setAmo
           )}
         </div>
 
+        {/* Modal Footer */}
         <div className="p-4 border-t border-gray-200 flex justify-end">
           <button 
             className="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition duration-150"
@@ -128,10 +137,12 @@ export default function Dashboard() {
 
   const fetchAccounts = useCallback(async () => {
     try {
+      // LIVE API call
       const res = await api.post("/api/accounts/list", { username });
       setAccounts(res.data);
     } catch (err) {
       console.error("Fetch accounts error:", err);
+      // Handles unauthenticated errors by logging out
       if (err.response?.status === 401 || err.response?.status === 403) handleLogout();
     }
   }, [username, handleLogout]);
@@ -139,6 +150,7 @@ export default function Dashboard() {
   const createAccount = async () => {
     if (!newAccountName) return;
     try {
+      // LIVE API call
       await api.post("/api/accounts/create", { accountName: newAccountName });
       setNewAccountName("");
       fetchAccounts();
@@ -150,10 +162,11 @@ export default function Dashboard() {
   const viewTransactions = useCallback(async (account) => {
     setSelectedAccount(account);
     try {
+      // LIVE API call
       const res = await api.get(`/api/transactions/${account.id}`);
       setTransactions(res.data);
       setShowModal(true);
-      setAmount(""); 
+      setAmount(""); // Clear amount field when opening modal
     } catch (err) {
       console.error("View transactions error:", err);
     }
@@ -162,11 +175,13 @@ export default function Dashboard() {
   const handleDeposit = async () => {
     if (!selectedAccount || !amount) return;
     try {
+      // LIVE API call
       await api.post("/api/transactions/deposit", {
         accountId: selectedAccount.id,
         amount: parseFloat(amount),
       });
       setAmount("");
+      // Refresh both the accounts list and the transaction list
       await fetchAccounts(); 
       await viewTransactions(selectedAccount); 
     } catch (err) {
@@ -177,11 +192,13 @@ export default function Dashboard() {
   const handleWithdraw = async () => {
     if (!selectedAccount || !amount) return;
     try {
+      // LIVE API call
       await api.post("/api/transactions/withdraw", {
         accountId: selectedAccount.id,
         amount: parseFloat(amount),
       });
       setAmount("");
+      // Refresh both the accounts list and the transaction list
       await fetchAccounts();
       await viewTransactions(selectedAccount);
     } catch (err) {
@@ -214,6 +231,22 @@ export default function Dashboard() {
                   Logout
               </button>
           </div>
+    <div className="min-h-screen bg-teal-50 p-4 sm:p-8">
+      
+      {/* Header and Portfolio Explainer */}
+      <div className="bg-white p-6 rounded-xl shadow-lg mb-6 border-t-4 border-teal-600">
+        <div className="flex justify-between items-start flex-col sm:flex-row sm:items-center">
+            <h1 className="text-3xl font-extrabold text-gray-800">
+                Welcome, {username || "User"}
+            </h1>
+            <button 
+                className="mt-3 sm:mt-0 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition duration-150 flex items-center space-x-2" // <-- UPDATED CLASSES: Added flex and space-x-2
+                onClick={handleLogout}
+            >
+                <LogOut className="w-4 h-4" /> {/* <-- ADDED: LogOut Icon */}
+                <span>Logout</span>             {/* <-- WRAPPED TEXT IN SPAN */}
+            </button>
+        </div>
 
           <div className="mt-4 pt-4 border-t border-gray-100">
               <h3 className="text-lg font-semibold text-teal-700 mb-2">Portfolio Demo Details:</h3>
@@ -240,6 +273,24 @@ export default function Dashboard() {
             </button>
           </div>
         </div>
+      {/* Account Creation Section */}
+      <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
+        <h3 className="text-xl font-bold text-gray-800 mb-4">Account Management</h3>
+        <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+          <input
+            type="text"
+            className="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition duration-150"
+            placeholder="New account name"
+            value={newAccountName}
+            onChange={(e) => setNewAccountName(e.target.value)}
+          />
+          <button 
+            className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-150" 
+            onClick={createAccount}>
+            Create Account
+          </button>
+        </div>
+      </div>
 
         <div className="bg-white p-6 rounded-xl shadow-lg overflow-x-auto">
           <h3 className="text-xl font-bold text-gray-800 mb-4">Your Accounts</h3>
@@ -275,6 +326,41 @@ export default function Dashboard() {
             </tbody>
           </table>
         </div>
+      {/* Accounts Table */}
+      <div className="bg-white p-6 rounded-xl shadow-lg overflow-x-auto">
+        <h3 className="text-xl font-bold text-gray-800 mb-4">Your Accounts</h3>
+        <table className="min-w-full bg-white rounded-lg border border-gray-200">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {accounts.map((acc) => (
+              <tr key={acc.id} className="hover:bg-teal-50/50 transition duration-100">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{acc.id}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-teal-600">{acc.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{acc.user?.username || acc.username}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-right text-gray-900">
+                    ${parseFloat(acc.balance).toFixed(2)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <button
+                    className="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-full hover:bg-blue-600 transition duration-150 shadow-sm"
+                    onClick={() => viewTransactions(acc)}
+                  >
+                    View Transactions
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
         <TransactionModal 
           show={showModal} 
@@ -310,5 +396,17 @@ export default function Dashboard() {
         </p>
       </footer>
     </>
+      {/* Transaction Modal */}
+      <TransactionModal 
+        show={showModal} 
+        onClose={() => setShowModal(false)} 
+        account={selectedAccount} 
+        transactions={transactions} 
+        amount={amount} 
+        setAmount={setAmount}
+        handleDeposit={handleDeposit}
+        handleWithdraw={handleWithdraw}
+      />
+    </div>
   );
 }
