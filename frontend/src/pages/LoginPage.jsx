@@ -2,6 +2,15 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom"; 
 import axios from "axios"; 
 
+const getApiPath = (path) => {
+    const hostname = window.location.hostname;
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+    
+    return isLocal ? `/api${path}` : path;
+};
+// ----------------------------
+
+
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,14 +46,16 @@ const LoginPage = () => {
 
     try {
       if (isRegister) {
-        await axios.post("/api/auth/register", { username: email, password });
+        const registerPath = getApiPath("/auth/register");
+        await axios.post(registerPath, { username: email, password });
         
         setSuccess("Registration successful! You can now log in."); 
         
         setIsRegister(false); 
 
       } else {
-        const res = await axios.post("/api/auth/login", { username: email, password });
+        const loginPath = getApiPath("/auth/login");
+        const res = await axios.post(loginPath, { username: email, password });
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("username", email); 
         navigate("/dashboard");

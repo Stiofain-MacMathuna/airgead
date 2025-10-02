@@ -18,6 +18,15 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+
+const getApiPath = (path) => {
+    const hostname = window.location.hostname;
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+    
+    return isLocal ? `/api${path}` : path;
+};
+
+
 const MessageBox = ({ show, message, onClose, onConfirm, type }) => {
     if (!show) return null;
 
@@ -207,7 +216,8 @@ export default function Dashboard() {
 
   const fetchAccounts = useCallback(async () => {
     try {
-      const res = await api.post("/api/accounts/list", { username });
+      const path = getApiPath("/accounts/list");
+      const res = await api.post(path, { username });
       setAccounts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Fetch accounts error:", err);
@@ -217,7 +227,8 @@ export default function Dashboard() {
 
   const createAccount = async () => {
     try {
-      await api.post("/api/accounts/create", { accountName: newAccountName });
+      const path = getApiPath("/accounts/create");
+      await api.post(path, { accountName: newAccountName });
       setNewAccountName("");
       fetchAccounts();
     } catch (err) {
@@ -250,7 +261,8 @@ export default function Dashboard() {
     setDeleteMessage({ show: false, text: "", accountId: null, type: 'confirm' });
     
     try {
-      await api.delete(`/api/accounts/${accountId}`); 
+      const path = getApiPath(`/accounts/${accountId}`);
+      await api.delete(path); 
       console.log(`[FRONTEND] Account ${accountId} deleted successfully.`);
       fetchAccounts(); 
     } catch (err) {
@@ -287,7 +299,8 @@ export default function Dashboard() {
     setSelectedAccount(account);
     setTransactionError(null); 
     try {
-      const res = await api.get(`/api/transactions/${account.id}`);
+      const path = getApiPath(`/transactions/${account.id}`);
+      const res = await api.get(path);
       setTransactions(Array.isArray(res.data) ? res.data : []);
       setShowModal(true);
       setAmount(""); 
@@ -319,7 +332,8 @@ export default function Dashboard() {
     const depositAmount = parseFloat(amount);
     
     try {
-      await api.post("/api/transactions/deposit", {
+      const path = getApiPath("/transactions/deposit");
+      await api.post(path, {
         accountId: selectedAccount.id,
         amount: depositAmount,
       });
@@ -362,7 +376,8 @@ export default function Dashboard() {
     }
 
     try {
-      await api.post("/api/transactions/withdraw", {
+      const path = getApiPath("/transactions/withdraw");
+      await api.post(path, {
         accountId: selectedAccount.id,
         amount: withdrawAmount,
       });
