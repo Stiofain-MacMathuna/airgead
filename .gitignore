@@ -38,4 +38,5 @@ dist/
 *.log
 
 ### Env Files ###
-.env.prod
+.env.production
+/frontend/.env.production

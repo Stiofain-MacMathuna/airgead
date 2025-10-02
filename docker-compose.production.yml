@@ -15,8 +15,8 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: ./frontend/Dockerfile.production
+      context: ./frontend
+      dockerfile: Dockerfile.production
     container_name: airgead-frontend
     ports:
       - "80:80"

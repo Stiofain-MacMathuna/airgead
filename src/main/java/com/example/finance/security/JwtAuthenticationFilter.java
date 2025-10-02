@@ -32,40 +32,60 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
                                     throws ServletException, IOException {
 
-        String path = request.getRequestURI(); // More reliable than getServletPath()
-        System.out.println("[JWT Filter] Incoming request URI: " + path);
+        // Log the start of the filter operation
+        System.out.println("[JWT Filter] Processing request for URI: " + request.getRequestURI());
 
-        if (path.startsWith("/auth") || path.startsWith("/api/auth") || path.startsWith("/h2-console")) {
-            System.out.println("[JWT Filter] Skipping JWT validation for: " + path);
-            filterChain.doFilter(request, response);
-            return;
-        }
-
+        // We rely on SecurityConfig to permit /api/auth/**. 
+        // No need for redundant path skipping here, making the filter cleaner.
+        
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("[JWT Filter] Missing or invalid Authorization header");
+            System.out.println("[JWT Filter] No JWT token found in header. Continuing chain.");
             filterChain.doFilter(request, response);
             return;
         }
 
         String token = authHeader.substring(7);
-        String username = jwtUtil.getUsernameFromToken(token);
-        System.out.println("[JWT Filter] Extracted username from token: " + username);
+        String username = null;
+        
+        try {
+            username = jwtUtil.getUsernameFromToken(token);
+            System.out.println("[JWT Filter] Extracted username from token: " + username);
+        } catch (Exception e) {
+            // Token is malformed or expired (JwtUtil.validateToken handles the catch block and logs it)
+            System.err.println("[JWT Filter] Could not extract username or token is invalid/expired: " + e.getMessage());
+        }
 
+        // Only process if username is found AND no authentication is currently set (to avoid overwriting)
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
+            // FIX: Use jwtUtil.validateToken to do the signature check
             if (jwtUtil.validateToken(token)) {
+                
                 System.out.println("[JWT Filter] Token validated for user: " + username);
+                
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                
+                // CRITICAL STEP: Set the authentication in the security context
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                System.out.println("[JWT Filter] **SUCCESS** SecurityContext set for user: " + username);
+
             } else {
-                System.out.println("[JWT Filter] Token validation failed");
+                System.out.println("[JWT Filter] Token validation failed (Expired/Bad Signature).");
             }
+        }
+        
+        // Log the end state of the security context before passing it on
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            System.out.println("[JWT Filter] Context is authenticated. Passing to next filter.");
+        } else {
+            System.out.println("[JWT Filter] Context is NOT authenticated. Passing to next filter. (This will lead to 401 if endpoint is protected!)");
         }
 
         filterChain.doFilter(request, response);

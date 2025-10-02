@@ -18,15 +18,12 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// The getApiPath function has been removed as all API calls now use the fixed 
+// '/api' prefix, relying on the Vite proxy in development and a reverse proxy in production.
 
-const getApiPath = (path) => {
-    const hostname = window.location.hostname;
-    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
-    
-    return isLocal ? `/api${path}` : path;
-};
-
-
+/**
+ * Custom modal component for showing errors or asking for confirmation.
+ */
 const MessageBox = ({ show, message, onClose, onConfirm, type }) => {
     if (!show) return null;
 
@@ -68,11 +65,15 @@ const MessageBox = ({ show, message, onClose, onConfirm, type }) => {
 };
 
 
+/**
+ * Modal for viewing transactions, deposits, and withdrawals.
+ */
 const TransactionModal = ({ show, onClose, account, transactions, amount, setAmount, handleDeposit, handleWithdraw, transactionError, setTransactionError }) => {
   if (!show) return null;
 
   const handleAmountChange = (e) => {
     const val = e.target.value;
+    // Only allow valid decimal numbers
     if (/^\d*\.?\d*$/.test(val)) {
         setAmount(val);
         setTransactionError(null);
@@ -187,6 +188,9 @@ const TransactionModal = ({ show, onClose, account, transactions, amount, setAmo
   );
 };
 
+/**
+ * Main dashboard component displaying accounts and managing transactions.
+ */
 export default function Dashboard() {
   const [accounts, setAccounts] = useState([]);
   const [newAccountName, setNewAccountName] = useState("");
@@ -214,20 +218,34 @@ export default function Dashboard() {
     navigate("/");
   }, [navigate]);
 
+  /**
+   * Fetches the list of accounts for the current user.
+   * * CRITICAL CHANGE: Refactored from POST to GET with a query parameter.
+   * This aligns with standard REST practices for fetching lists and avoids 405 errors
+   * often caused by proxies blocking POST requests to list endpoints.
+   */
   const fetchAccounts = useCallback(async () => {
     try {
-      const path = getApiPath("/accounts/list");
-      const res = await api.post(path, { username });
+      // 1. Construct the URL to use a GET request and pass username as a query parameter
+      const path = `/api/accounts/list?username=${encodeURIComponent(username)}`;
+      
+      // 2. Use api.get() instead of api.post()
+      const res = await api.get(path); 
+      
       setAccounts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Fetch accounts error:", err);
       if (err.response?.status === 401 || err.response?.status === 403) handleLogout();
+      // NOTE: If the 405 persists, the backend must be updated to accept GET on this route.
     }
   }, [username, handleLogout]);
 
+  /**
+   * Creates a new account.
+   */
   const createAccount = async () => {
     try {
-      const path = getApiPath("/accounts/create");
+      const path = "/api/accounts/create";
       await api.post(path, { accountName: newAccountName });
       setNewAccountName("");
       fetchAccounts();
@@ -254,6 +272,9 @@ export default function Dashboard() {
     });
   }, []);
 
+  /**
+   * Deletes a confirmed account.
+   */
   const confirmDeleteAccount = useCallback(async () => {
     const accountId = deleteMessage.accountId;
     if (!accountId) return;
@@ -261,7 +282,7 @@ export default function Dashboard() {
     setDeleteMessage({ show: false, text: "", accountId: null, type: 'confirm' });
     
     try {
-      const path = getApiPath(`/accounts/${accountId}`);
+      const path = `/api/accounts/${accountId}`;
       await api.delete(path); 
       console.log(`[FRONTEND] Account ${accountId} deleted successfully.`);
       fetchAccounts(); 
@@ -295,17 +316,21 @@ export default function Dashboard() {
   }, [deleteMessage.accountId, fetchAccounts, handleLogout]); 
 
 
+  /**
+   * Fetches transactions for the selected account and opens the modal.
+   */
   const viewTransactions = useCallback(async (account) => {
     setSelectedAccount(account);
     setTransactionError(null); 
     try {
-      const path = getApiPath(`/transactions/${account.id}`);
+      const path = `/api/transactions/${account.id}`;
       const res = await api.get(path);
       setTransactions(Array.isArray(res.data) ? res.data : []);
       setShowModal(true);
       setAmount(""); 
     } catch (err) {
       console.error("View transactions error:", err);
+      // Fallback for cases where the API returns an error but we still want to open the modal
       setTransactions(Array.isArray(err.response?.data) ? err.response.data : []); 
       setShowModal(true);
       setAmount(""); 
@@ -324,6 +349,9 @@ export default function Dashboard() {
   }, []);
 
 
+  /**
+   * Handles deposit operation.
+   */
   const handleDeposit = async () => {
     if (!selectedAccount || !amount || parseFloat(amount) <= 0) {
         setTransactionError("Please enter a valid amount greater than zero.");
@@ -332,7 +360,7 @@ export default function Dashboard() {
     const depositAmount = parseFloat(amount);
     
     try {
-      const path = getApiPath("/transactions/deposit");
+      const path = "/api/transactions/deposit";
       await api.post(path, {
         accountId: selectedAccount.id,
         amount: depositAmount,
@@ -346,6 +374,7 @@ export default function Dashboard() {
 
       updateLocalAccountBalance(selectedAccount.id, newBalance);
       
+      // Re-fetch transactions to update the list in the modal
       await viewTransactions({ ...selectedAccount, balance: newBalance }); 
 
     } catch (err) {
@@ -359,6 +388,9 @@ export default function Dashboard() {
     }
   };
 
+  /**
+   * Handles withdrawal operation.
+   */
   const handleWithdraw = async () => {
     if (!selectedAccount) return;
 
@@ -376,7 +408,7 @@ export default function Dashboard() {
     }
 
     try {
-      const path = getApiPath("/transactions/withdraw");
+      const path = "/api/transactions/withdraw";
       await api.post(path, {
         accountId: selectedAccount.id,
         amount: withdrawAmount,
@@ -389,6 +421,7 @@ export default function Dashboard() {
       
       updateLocalAccountBalance(selectedAccount.id, newBalance);
 
+      // Re-fetch transactions to update the list in the modal
       await viewTransactions({ ...selectedAccount, balance: newBalance });
       
     } catch (err) {
@@ -435,7 +468,7 @@ export default function Dashboard() {
                   Welcome, {username || "User"}
               </h1>
               <button 
-                  className="mt-3 sm:mt-0 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:-red-700 transition duration-150"
+                  className="mt-3 sm:mt-0 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition duration-150"
                   onClick={handleLogout}
               >
                   Logout
