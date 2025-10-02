@@ -2,6 +2,8 @@ package com.example.finance.model;
 
 import jakarta.persistence.*;
 import java.util.UUID;
+import java.util.List; // Import List for the collection of transactions
+import java.util.ArrayList; // Import ArrayList for initialization
 
 @Entity
 public class Account {
@@ -17,6 +19,13 @@ public class Account {
     private String name;
 
     private double balance;
+    
+    // 1. FIX: Add One-to-Many relationship with Transaction for cascade delete
+    // We assume the foreign key column is defined in the Transaction model by 'account'.
+    // CascadeType.ALL ensures that if an Account is deleted, all associated Transactions are also deleted.
+    // orphanRemoval = true is good practice for managing child entities.
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> transactions = new ArrayList<>(); 
 
     public Account() {}
 
@@ -38,4 +47,8 @@ public class Account {
 
     public double getBalance() { return balance; }
     public void setBalance(double balance) { this.balance = balance; }
+    
+    // New getter/setter for transactions (optional, but good practice)
+    public List<Transaction> getTransactions() { return transactions; }
+    public void setTransactions(List<Transaction> transactions) { this.transactions = transactions; }
 }

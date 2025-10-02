@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom"; 
 import axios from "axios"; 
 
 const LoginPage = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(""); 
@@ -26,31 +26,38 @@ const LoginPage = () => {
     setError("");
     setSuccess(""); 
     setIsLoggingIn(true);
+    
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (isRegister && !passwordRegex.test(password)) {
+        setError("Password must be at least 8 characters long and include: 1 uppercase, 1 lowercase, 1 number, and 1 special character (@$!%*?&).");
+        setIsLoggingIn(false);
+        return;
+    }
 
     try {
       if (isRegister) {
-        await axios.post("/api/auth/register", { username, password });
+        await axios.post("/api/auth/register", { username: email, password });
         
-        setSuccess("Registration successful! Please log in."); 
+        setSuccess("Registration successful! You can now log in."); 
         
-        setIsRegister(false);
-        setUsername("");
-        setPassword("");
+        setIsRegister(false); 
+
       } else {
-        const res = await axios.post("/api/auth/login", { username, password });
+        const res = await axios.post("/api/auth/login", { username: email, password });
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("username", username);
+        localStorage.setItem("username", email); 
         navigate("/dashboard");
       }
     } catch (err) {
       setError(
         err.response?.data?.message ||
-        (isRegister ? "Registration failed. Please try again." : "Invalid username or password.")
+        (isRegister ? "Registration failed. Please try again." : "Invalid email or password.")
       );
     } finally {
       setIsLoggingIn(false);
     }
-  }, [username, password, isRegister, isLoggingIn, navigate]);
+  }, [email, password, isRegister, isLoggingIn, navigate]); 
 
   return (
     <div className="flex justify-center items-center h-screen w-screen overflow-hidden bg-teal-50">
@@ -83,21 +90,21 @@ const LoginPage = () => {
 
           <div>
             <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              placeholder="Email Address" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)}
               required
               disabled={isLoggingIn}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition duration-150"
-              aria-label="Username"
+              aria-label="Email Address"
             />
           </div>
 
           <div>
             <input
               type="password"
-              placeholder="Password"
+              placeholder="Secure Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -106,6 +113,12 @@ const LoginPage = () => {
               aria-label="Password"
             />
           </div>
+          
+          {isRegister && (
+             <p className="text-xs text-gray-500 p-2 border border-dashed border-teal-200 rounded-lg">
+                 * Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special character.
+             </p>
+          )}
 
           <div>
             <button
@@ -150,8 +163,6 @@ const LoginPage = () => {
               setIsRegister(!isRegister);
               setError(""); 
               setSuccess("");         
-              setUsername("");
-              setPassword("");
             }}
             disabled={isLoggingIn}
             className="text-sm font-medium text-teal-600 hover:text-teal-800 transition duration-150 disabled:text-gray-400 disabled:cursor-not-allowed"

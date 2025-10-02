@@ -49,31 +49,36 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Arrays.asList("http://20.199.81.36", "http://localhost:5173"));
+        config.setAllowedOrigins(Arrays.asList("http://20.199.81.36", "http://localhost:5173", "http://localhost:3000"));
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // 1. Disable CSRF for stateless API applications (correct)
             .csrf(csrf -> csrf.disable())
-            .headers(headers -> headers.frameOptions().disable()) 
+            // 2. Allow CORS configuration from the CorsFilter bean
             .cors()
             .and()
+            // 3. Define authorization rules
             .authorizeHttpRequests(auth -> auth
+                // Allow pre-flight OPTIONS requests (necessary for CORS)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
-                .requestMatchers("/h2-console/**").permitAll()         
+                // Allow registration and login without token
                 .requestMatchers("/api/auth/**").permitAll()          
-                .requestMatchers("/api/accounts/**").authenticated()  
-                .requestMatchers("/api/transactions/**").authenticated()
+                // All other API paths require authentication
+                .requestMatchers("/api/accounts/**", "/api/transactions/**").authenticated()
                 .anyRequest().authenticated()
             )
+            // 4. Configure session management as stateless for JWT
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // 5. Add JWT filter before the standard authentication filter
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+            // 6. Handle authentication exceptions
             .exceptionHandling(exception -> exception
                 .authenticationEntryPoint(
                     (req, res, authException) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")

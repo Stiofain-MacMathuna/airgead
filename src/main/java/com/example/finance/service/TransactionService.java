@@ -7,6 +7,7 @@ import com.example.finance.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant; // 1. IMPORTANT: Import Instant
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +30,7 @@ public class TransactionService {
         accountRepository.save(account);
 
         Transaction txn = new Transaction(account, amount, "DEPOSIT");
+        txn.setDate(Instant.now()); // 2. FIX: Set the current date/time
         return transactionRepository.save(txn);
     }
 
@@ -42,6 +44,7 @@ public class TransactionService {
         accountRepository.save(account);
 
         Transaction txn = new Transaction(account, amount, "WITHDRAW");
+        txn.setDate(Instant.now()); // 3. FIX: Set the current date/time
         return transactionRepository.save(txn);
     }
 

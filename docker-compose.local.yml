@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:16
+    container_name: finance-db
+    environment:
+      POSTGRES_DB: finance
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - airgead-net
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.local
+    container_name: airgead-backend-local
+    env_file:
+      - .env.local
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - airgead-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.local
+    container_name: airgead-frontend-local
+    env_file:
+      - ./frontend/.env.local
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+    networks:
+      - airgead-net
+
+volumes:
+  pgdata:
+
+networks:
+  airgead-net:
+    driver: bridge

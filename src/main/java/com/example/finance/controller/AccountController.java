@@ -47,4 +47,15 @@ public class AccountController {
     public Account getAccount(@PathVariable UUID id) {
         return accountService.getAccount(id);
     }
+    
+    /**
+     * Deletes an account by its ID.
+     * Maps to: DELETE /api/accounts/{id}
+     * @param id The UUID of the account to delete.
+     */
+    @DeleteMapping("/{id}")
+    public void deleteAccount(@PathVariable UUID id) {
+        System.out.println("[Controller] Received request to delete account ID: " + id);
+        accountService.deleteAccount(id);
+    }
 }
