@@ -23,15 +23,9 @@ public class AccountController {
         this.accountService = accountService;
     }
     
-    /**
-     * Helper method to get the authenticated user's username.
-     * @return The username (email) of the currently authenticated user.
-     */
     private String getAuthenticatedUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
-            // Should be impossible if SecurityConfig is set up correctly, 
-            // but provides a safe fallback.
             throw new IllegalStateException("User not authenticated in security context.");
         }
         return auth.getName();
@@ -50,12 +44,7 @@ public class AccountController {
         return accountService.createAccount(username, accountName);
     }
 
-    /**
-     * FIX: Changed to @GetMapping to match frontend request type.
-     * FIX: Removed @RequestBody and retrieved username from SecurityContextHolder
-     * since the token already contains the necessary user info.
-     * Maps to: GET /api/accounts/list
-     */
+
     @GetMapping("/list")
     public List<Account> getAccounts() {
         String username = getAuthenticatedUsername();
@@ -68,15 +57,9 @@ public class AccountController {
         return accountService.getAccount(id);
     }
     
-    /**
-     * Deletes an account by its ID.
-     * Maps to: DELETE /api/accounts/{id}
-     * @param id The UUID of the account to delete.
-     */
     @DeleteMapping("/{id}")
     public void deleteAccount(@PathVariable UUID id) {
         System.out.println("[Controller] Received request to delete account ID: " + id);
-        // Optional: Add check to ensure the authenticated user owns this account before deleting
         accountService.deleteAccount(id);
     }
 }

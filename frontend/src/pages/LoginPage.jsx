@@ -8,7 +8,6 @@ const getApiPath = (path) => {
     
     return isLocal ? `/api${path}` : path;
 };
-// ----------------------------
 
 
 const LoginPage = () => {

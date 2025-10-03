@@ -49,7 +49,6 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        // Ensure all necessary origins are included
         config.setAllowedOrigins(Arrays.asList(
             "http://20.199.81.36", 
             "http://localhost:5173", 
@@ -57,8 +56,6 @@ public class SecurityConfig {
             "https://airgead.io" 
         ));
         config.addAllowedHeader("*");
-        // FIX: Explicitly list all allowed methods instead of using wildcard, 
-        // ensuring DELETE is properly recognized by the pre-flight check.
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
@@ -67,26 +64,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Disable CSRF for stateless API applications (correct)
             .csrf(csrf -> csrf.disable())
-            // 2. Allow CORS configuration from the CorsFilter bean
             .cors()
             .and()
-            // 3. Define authorization rules
             .authorizeHttpRequests(auth -> auth
-                // Allow pre-flight OPTIONS requests (necessary for CORS)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
-                // Allow registration and login without token
                 .requestMatchers("/api/auth/**").permitAll()          
-                // All other API paths require authentication
                 .requestMatchers("/api/accounts/**", "/api/transactions/**").authenticated()
                 .anyRequest().authenticated()
             )
-            // 4. Configure session management as stateless for JWT
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // 5. Add JWT filter before the standard authentication filter
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-            // 6. Handle authentication exceptions
             .exceptionHandling(exception -> exception
                 .authenticationEntryPoint(
                     (req, res, authException) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
