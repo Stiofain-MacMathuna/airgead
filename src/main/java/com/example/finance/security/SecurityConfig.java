@@ -49,9 +49,17 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Arrays.asList("http://20.199.81.36", "http://localhost:5173", "http://localhost:3000"));
+        // Ensure all necessary origins are included
+        config.setAllowedOrigins(Arrays.asList(
+            "http://20.199.81.36", 
+            "http://localhost:5173", 
+            "http://localhost:3000",
+            "https://airgead.io" 
+        ));
         config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
+        // FIX: Explicitly list all allowed methods instead of using wildcard, 
+        // ensuring DELETE is properly recognized by the pre-flight check.
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
