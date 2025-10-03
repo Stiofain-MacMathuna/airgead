@@ -40,3 +40,9 @@ dist/
 ### Env Files ###
 .env.production
 /frontend/.env.production
+
+### Docker / Nginx ###
+docker-compose.production.yml
+frontend/nginx.prod.conf
+nginx-prod-https.conf.template
+nginx-temp-http-only.conf.template
