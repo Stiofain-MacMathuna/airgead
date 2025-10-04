@@ -94,7 +94,7 @@ I built this project as part of my portfolio to demonstrate **end-to-end backend
 ### Setup
 
 ```bash
-git clone https://github.com/Stiofain-MacMathuna/springboot-finance-app.git
+git clone https://github.com/Stiofain-MacMathuna/airgead.git
 cd springboot-finance-app
 docker compose -f docker-compose.local.yml up --build
 ```
