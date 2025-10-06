@@ -1,6 +1,6 @@
 # Airgead - Secure Finance App
 
-A full-stack financial ledger application for securely tracking and managing personal finances — built with **Java Spring Boot (API)** and **React/Vite (UI)**, containerized with Docker, and deployed to the cloud on **Microsoft Azure (VM + PostgreSQL)** with **NGINX reverse proxy** and HTTPS enabled via Let’s Encrypt.  
+A full-stack financial ledger application for securely tracking and managing personal finances — built with Java Spring Boot (API) and React/Vite (UI components created with AI assistance), containerized with Docker, and deployed to the cloud on Microsoft Azure (VM + PostgreSQL) with NGINX reverse proxy and HTTPS enabled via Let’s Encrypt.
 
 This project demonstrates my ability to build, containerize, and deploy secure, production-ready applications with modern backend and cloud infrastructure practices.
 
@@ -13,7 +13,7 @@ This project demonstrates my ability to build, containerize, and deploy secure, 
 This app showcases my ability to:
 
 - Build secure, production-grade REST APIs with Spring Boot  
-- Design and develop a modern frontend with React/Vite and Tailwind CSS  
+- Design responsive UI components (React/Vite frontend created with AI assistance)
 - Implement JWT authentication for secure user sessions  
 - Configure HTTPS and reverse proxying with NGINX and Let’s Encrypt  
 - Manage containerized deployments via Docker and Docker Compose  
@@ -28,7 +28,7 @@ I built this project as part of my portfolio to demonstrate **end-to-end backend
 - Secure user authentication with JWT tokens  
 - RESTful API built with Spring Boot  
 - PostgreSQL database hosted on Azure  
-- Responsive frontend built with React and Tailwind CSS  
+- Responsive frontend built with React and Tailwind CSS (AI-assisted) 
 - HTTPS enabled via Let’s Encrypt SSL certificates  
 - NGINX reverse proxy for routing frontend/backend traffic in production  
 - Environment-based configuration for local and cloud deployments  
